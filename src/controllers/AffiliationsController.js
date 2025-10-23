@@ -97,9 +97,10 @@ const createAffiliation = async (req, res) => {
 }
 };
 
+// En controllers/AffiliationsController.js - modifica listAffiliations
 const listAffiliations = async (req, res) => {
   try {
-    const { userId, role, departmentId, specialtyId } = req.query;
+    const { userId, role, departmentId, specialtyId, specialty } = req.query;
     
     // Construir filtro dinámicamente
     const where = {};
@@ -107,6 +108,16 @@ const listAffiliations = async (req, res) => {
     if (role) where.role = String(role).toUpperCase().trim();
     if (departmentId) where.departmentId = departmentId;
     if (specialtyId) where.specialtyId = specialtyId;
+    
+    // Si se busca por nombre de especialidad
+    if (specialty) {
+      where.specialty = {
+        name: { 
+          contains: specialty, 
+          mode: 'insensitive' 
+        }
+      };
+    }
     
     const affiliations = await prisma.affiliations.findMany({
       where,
@@ -139,9 +150,8 @@ const listAffiliations = async (req, res) => {
       ]
     });
     
-    // Registrar visualización de afiliaciones (implementar después)
+    // Registrar visualización de afiliaciones
     try {
-      // Enviaremos un evento al servicio de auditoría más adelante
       console.log(`Lista de afiliaciones consultada por ${req.user?.email || 'usuario no autenticado'}`);
     } catch (logError) {
       console.error("Error al registrar auditoría:", logError);
@@ -154,77 +164,7 @@ const listAffiliations = async (req, res) => {
   }
 };
 
-
-// GET /api/v1/affiliations/by-specialty?specialty=cardiologia
-const getDoctorsBySpecialty = async (req, res) => {
-  try {
-    const { specialty } = req.query;
-
-    if (!specialty) {
-      return res.status(400).json({ message: "Debe proporcionar una especialidad." });
-    }
-
-    // Normalizar texto del usuario (minúsculas + sin tildes)
-    const normalizeText = (text) =>
-      text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-    const normalizedSpecialty = normalizeText(specialty);
-
-    // Traer todas las especialidades de la DB
-    const specialties = await prisma.specialties.findMany({
-      include: { department: true },
-    });
-
-    // Buscar la especialidad que coincida después de normalizar
-    const specialtyRecord = specialties.find(sp =>
-      normalizeText(sp.name) === normalizedSpecialty
-    );
-
-    if (!specialtyRecord) {
-      return res.status(404).json({ message: `Especialidad '${specialty}' no encontrada.` });
-    }
-
-    // Buscar médicos afiliados a esa especialidad
-    const doctors = await prisma.affiliations.findMany({
-      where: {
-        specialtyId: specialtyRecord.id,
-        role: "MEDICO",
-      },
-      include: {
-        user: true,
-        department: true,
-        specialty: true,
-      },
-    });
-
-    if (doctors.length === 0) {
-      return res.status(404).json({ message: `No hay doctores asociados a '${specialtyRecord.name}'.` });
-    }
-
-    // Mapear la info completa
-    const result = doctors.map(doc => ({
-      id: doc.user.id,
-      fullname: `${doc.user.firstName} ${doc.user.lastName}`,
-      email: doc.user.email,
-      id_type: doc.user.idType || "-",
-      id_number: doc.user.idNumber || "-",
-      age: doc.user.age || "-",
-      status: doc.user.isActive ? "Activo" : "Inactivo",
-      department: doc.department?.name || "-",
-      specialty: doc.specialty?.name || "-",
-    }));
-
-    return res.status(200).json(result);
-
-  } catch (error) {
-    console.error("❌ Error en getDoctorsBySpecialty:", error);
-    return res.status(500).json({ message: "Error al obtener médicos por especialidad", error: error.message });
-  }
-};
-
-
 module.exports = {
   createAffiliation,
-  listAffiliations,
-  getDoctorsBySpecialty
+  listAffiliations
 };

@@ -63,5 +63,5 @@ model affiliations {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
-  @@map("affiliations")
+  @@map("affiliations") 
 }

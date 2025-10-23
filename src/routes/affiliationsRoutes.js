@@ -18,6 +18,6 @@ router.get("/", authMiddleware, listAffiliations);
  */
 router.post("/", authMiddleware, createAffiliation);
 router.post('/affiliations', authMiddleware ,AffiliationsController.createAffiliation); // Crear una nueva afiliación
-router.get('/by-specialty', AffiliationsController.getDoctorsBySpecialty);
+
 
 module.exports = router;

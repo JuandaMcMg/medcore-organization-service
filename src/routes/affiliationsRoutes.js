@@ -1,7 +1,7 @@
 const express = require("express");
 const authMiddleware = require("../middlewares/authMiddleware");
 const { createAffiliation, listAffiliations } = require("../controllers/AffiliationsController");
-
+const AffiliationsController = require("../controllers/AffiliationsController"); // Importar el controlador
 const router = express.Router();
 
 /**
@@ -17,5 +17,7 @@ router.get("/", authMiddleware, listAffiliations);
  * @access Privado - Requiere autenticación
  */
 router.post("/", authMiddleware, createAffiliation);
+router.post('/affiliations', authMiddleware ,AffiliationsController.createAffiliation); // Crear una nueva afiliación
+router.get('/by-specialty', AffiliationsController.getDoctorsBySpecialty);
 
 module.exports = router;

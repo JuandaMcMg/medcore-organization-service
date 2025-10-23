@@ -39,6 +39,9 @@ app.get("/health", (_req, res) =>
 app.use('/api/v1/departments', deptRoutes);
 app.use('/api/v1/specialities', specialityRoutes);
 app.use('/api/v1/affiliations', affiliationsRoutes);
+app.use('/api/v1', require('./routes/affiliationsRoutes')); //
+app.use('/api/v1/affiliations', require('../src/routes/affiliationsRoutes'));
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -58,6 +61,8 @@ app.use((req, res) => {
     service: "organization-service"
   });
 });
+
+database();
 
 app.listen(port, () => {
   console.log(`🏢 Organization Service running on port ${port}`);

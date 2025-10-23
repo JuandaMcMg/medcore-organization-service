@@ -12,47 +12,55 @@ datasource db {
 
 // Departamentos
 model departments {
-  id          String       @id @default(auto()) @map("_id") @db.ObjectId
-  name        String       @unique
-  description String?
-  specialties specialties[]
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  name         String         @unique
+  description  String?
+  specialties  specialties[]
   affiliations affiliations[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@map("departments")
 }
 
 // Especialidades
 model specialties {
-  id          String       @id @default(auto()) @map("_id") @db.ObjectId
-  name        String       @unique
-  description String?
-  departmentId String      @db.ObjectId
-  department  departments  @relation(fields: [departmentId], references: [id])
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  name         String         @unique
+  description  String?
+  departmentId String         @db.ObjectId
+  department   departments    @relation(fields: [departmentId], references: [id])
   affiliations affiliations[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@map("specialties")
 }
 
 // Usuarios (referencia)
 model users {
-  id          String       @id @default(auto()) @map("_id") @db.ObjectId
-  firstName   String
-  lastName    String
-  email       String       @unique
-  isActive    Boolean      @default(true)
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  firstName    String?
+  lastName     String?
+  email        String         @unique
+  isActive     Boolean        @default(true)
   affiliations affiliations[]
+
+  @@map("Users")
 }
 
 // Afiliaciones
 model affiliations {
-  id          String       @id @default(auto()) @map("_id") @db.ObjectId
-  userId      String       @db.ObjectId
-  user        users        @relation(fields: [userId], references: [id])
-  role        String       // ADMINISTRADOR, MEDICO, ENFERMERO, PACIENTE
-  departmentId String?     @db.ObjectId
-  department  departments? @relation(fields: [departmentId], references: [id])
-  specialtyId String?      @db.ObjectId
-  specialty   specialties? @relation(fields: [specialtyId], references: [id])
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id           String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String?       @db.ObjectId
+  user         users?        @relation(fields: [userId], references: [id])
+  role         String // ADMINISTRADOR, MEDICO, ENFERMERO, PACIENTE
+  departmentId String?      @db.ObjectId
+  department   departments? @relation(fields: [departmentId], references: [id])
+  specialtyId  String?      @db.ObjectId
+  specialty    specialties? @relation(fields: [specialtyId], references: [id])
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@map("affiliations")
 }

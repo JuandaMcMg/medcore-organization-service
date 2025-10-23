@@ -76,7 +76,7 @@ const createAffiliation = async (req, res) => {
         department: deptId ? { select: { id: true, name: true } } : undefined,
         specialty: specId ? { select: { id: true, name: true } } : undefined
       }
-    });
+    }); 
 
     // Registrar creación de afiliación (implementar después)
     try {
@@ -91,14 +91,16 @@ const createAffiliation = async (req, res) => {
       affiliation
     });
   } catch (error) {
-    console.error("createAffiliation error:", error);
-    return res.status(500).json({ message: "Error al crear afiliación" });
-  }
+  console.error("createAffiliation error:", error.message);
+  console.error(error.stack);
+  return res.status(500).json({ message: "Error al crear afiliación" });
+}
 };
 
+// En controllers/AffiliationsController.js - modifica listAffiliations
 const listAffiliations = async (req, res) => {
   try {
-    const { userId, role, departmentId, specialtyId } = req.query;
+    const { userId, role, departmentId, specialtyId, specialty } = req.query;
     
     // Construir filtro dinámicamente
     const where = {};
@@ -106,6 +108,16 @@ const listAffiliations = async (req, res) => {
     if (role) where.role = String(role).toUpperCase().trim();
     if (departmentId) where.departmentId = departmentId;
     if (specialtyId) where.specialtyId = specialtyId;
+    
+    // Si se busca por nombre de especialidad
+    if (specialty) {
+      where.specialty = {
+        name: { 
+          contains: specialty, 
+          mode: 'insensitive' 
+        }
+      };
+    }
     
     const affiliations = await prisma.affiliations.findMany({
       where,
@@ -138,9 +150,8 @@ const listAffiliations = async (req, res) => {
       ]
     });
     
-    // Registrar visualización de afiliaciones (implementar después)
+    // Registrar visualización de afiliaciones
     try {
-      // Enviaremos un evento al servicio de auditoría más adelante
       console.log(`Lista de afiliaciones consultada por ${req.user?.email || 'usuario no autenticado'}`);
     } catch (logError) {
       console.error("Error al registrar auditoría:", logError);

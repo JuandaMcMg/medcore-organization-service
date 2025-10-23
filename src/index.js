@@ -7,7 +7,7 @@ const { sanitizeInputs } = require("./middlewares/sanitizeMiddleware");
 
 // Importar rutas
 const deptRoutes = require("./routes/deptRoutes");
-const specialityRoutes = require("./routes/specialityRoutes");
+const specialtyRoutes = require("./routes/specialtyRoutes");
 const affiliationsRoutes = require("./routes/affiliationsRoutes");
 
 require("dotenv").config();
@@ -37,7 +37,7 @@ app.get("/health", (_req, res) =>
 
 // Rutas del servicio
 app.use('/api/v1/departments', deptRoutes);
-app.use('/api/v1/specialities', specialityRoutes);
+app.use('/api/v1/specialties', specialtyRoutes);
 app.use('/api/v1/affiliations', affiliationsRoutes);
 app.use('/api/v1', require('./routes/affiliationsRoutes')); //
 app.use('/api/v1/affiliations', require('../src/routes/affiliationsRoutes'));

@@ -97,7 +97,7 @@ const createAffiliation = async (req, res) => {
 }
 };
 
-// En controllers/AffiliationsController.js - modifica listAffiliations
+
 const listAffiliations = async (req, res) => {
   try {
     const { userId, role, departmentId, specialtyId, specialty } = req.query;
@@ -164,7 +164,42 @@ const listAffiliations = async (req, res) => {
   }
 };
 
+ const updateAffiliation = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { role, departmentId, specialtyId } = req.body;
+
+    // Verificar si existe la afiliación del usuario
+    const affiliation = await prisma.affiliations.findFirst({
+      where: { userId },
+    });
+
+    if (!affiliation) {
+      return res.status(404).json({ message: "Afiliación no encontrada para este usuario" });
+    }
+
+    // Actualizar los campos necesarios
+    const updatedAffiliation = await prisma.affiliations.update({
+      where: { id: affiliation.id },
+      data: {
+        role: role || affiliation.role,
+        departmentId: departmentId || affiliation.departmentId,
+        specialtyId: specialtyId || affiliation.specialtyId,
+      },
+    });
+
+    res.status(200).json({
+      message: "Afiliación actualizada correctamente",
+      data: updatedAffiliation,
+    });
+  } catch (error) {
+    console.error("Error al actualizar afiliación:", error);
+    res.status(500).json({ message: "Error interno del servidor", error });
+  }
+};
+
 module.exports = {
   createAffiliation,
-  listAffiliations
+  listAffiliations,
+  updateAffiliation
 };

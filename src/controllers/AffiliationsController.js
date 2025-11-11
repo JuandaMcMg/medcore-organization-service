@@ -68,8 +68,7 @@ const createAffiliation = async (req, res) => {
         user: {
           select: {
             id: true,
-            firstName: true,
-            lastName: true,
+            fullname: true,
             email: true,
           }
         },
@@ -125,8 +124,7 @@ const listAffiliations = async (req, res) => {
         user: {
           select: {
             id: true,
-            firstName: true,
-            lastName: true,
+            fullname: true,
             email: true,
             isActive: true,
           }
@@ -146,7 +144,7 @@ const listAffiliations = async (req, res) => {
       },
       orderBy: [
         { role: 'asc' },
-        { user: { lastName: 'asc' } }
+        { user: { fullname: 'asc' } }
       ]
     });
     

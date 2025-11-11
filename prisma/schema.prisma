@@ -2,8 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+  provider      = "prisma-client-js"
+  output        = "../src/generated/prisma"
   binaryTargets = ["native", "windows", "debian-openssl-3.0.x"]
 }
 
@@ -42,8 +42,7 @@ model specialties {
 // Usuarios (referencia)
 model users {
   id           String         @id @default(auto()) @map("_id") @db.ObjectId
-  firstName    String?
-  lastName     String?
+  fullname     String
   email        String         @unique
   isActive     Boolean        @default(true)
   affiliations affiliations[]
@@ -53,9 +52,9 @@ model users {
 
 // Afiliaciones
 model affiliations {
-  id           String      @id @default(auto()) @map("_id") @db.ObjectId
-  userId       String?       @db.ObjectId
-  user         users?        @relation(fields: [userId], references: [id])
+  id           String       @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String?      @db.ObjectId
+  user         users?       @relation(fields: [userId], references: [id])
   role         String // ADMINISTRADOR, MEDICO, ENFERMERO, PACIENTE
   departmentId String?      @db.ObjectId
   department   departments? @relation(fields: [departmentId], references: [id])
@@ -64,5 +63,5 @@ model affiliations {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
-  @@map("affiliations") 
+  @@map("affiliations")
 }

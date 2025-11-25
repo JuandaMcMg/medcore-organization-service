@@ -13,6 +13,9 @@ const createSpecialty = async (req, res) => {
       return res.status(400).json({ message: "name y departmentId son obligatorios" });
     }
 
+    //Almacena nombre en mayuscula
+    name = name.trim().toUpperCase();
+
     // 1) Validar departamento existe
     const dept = await prisma.departments.findUnique({ where: { id: departmentId } });
     if (!dept) return res.status(404).json({ message: "Departamento no encontrado" });
@@ -61,6 +64,13 @@ const listSpecialties = async (req, res) => {
       }
     });
     
+    const normalized = listSpecialtie.map(sp => ({
+      ...sp,
+      name: sp.name ? sp.name.toUpperCase() : sp.name,
+      department: sp.department
+        ? { ...sp.department, name: sp.department.name.toUpperCase() }
+        : sp.department,
+    }));
     // Registrar visualización de especialidades (implementar después)
     try {
       // Enviaremos un evento al servicio de auditoría más adelante
@@ -69,7 +79,7 @@ const listSpecialties = async (req, res) => {
       console.error("Error al registrar auditoría:", logError);
     }
     
-    return res.json(listSpecialtie);
+    return res.json(normalized);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Error listando especialidades" });
@@ -120,7 +130,9 @@ const updateSpecialty = async (req, res) => {
     const data = {};
 
     if (name) {
-      // si cambias el nombre, opcionalmente verifica duplicado
+      //Almacena nombre en mayuscula
+      name = name.trim().toUpperCase();
+      // si cambias el nombre, verifica duplicado
       const dup = await prisma.specialties.findUnique({ where: { name } });
       if (dup && dup.id !== id) {
         return res.status(409).json({ message: "Ya existe una especialidad con ese nombre" });
@@ -141,7 +153,7 @@ const updateSpecialty = async (req, res) => {
       include: { department: true }
     });
 
-    // Registrar actualización de especialidad (implementar después)
+    // Registrar actualización de especialidad
     try {
       // Enviaremos un evento al servicio de auditoría más adelante
       console.log(`Especialidad ${updated.name} actualizada por ${req.user?.email || 'sistema'}`);

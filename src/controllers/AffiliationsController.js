@@ -147,6 +147,17 @@ const listAffiliations = async (req, res) => {
         { user: { fullname: 'asc' } }
       ]
     });
+
+    const normalized = affiliations.map(a => ({
+      ...a,
+      role: a.role ? a.role.toUpperCase() : a.role,
+      department: a.department
+        ? { ...a.department, name: a.department.name.toUpperCase() }
+        : a.department,
+      specialty: a.specialty
+        ? { ...a.specialty, name: a.specialty.name.toUpperCase() }
+        : a.specialty,
+    }));
     
     // Registrar visualización de afiliaciones
     try {
@@ -155,7 +166,7 @@ const listAffiliations = async (req, res) => {
       console.error("Error al registrar auditoría:", logError);
     }
     
-    return res.json(affiliations);
+    return res.json(normalized);
   } catch (error) {
     console.error("listAffiliations error:", error);
     return res.status(500).json({ message: "Error al listar afiliaciones" });

@@ -8,7 +8,7 @@ const createDepartment = async (req, res) => {
         return res.status(400).json({ message: "El nombre del departamento es obligatorio" });
     }
 
-      name = name.toUpperCase().trim();
+    name = name.trim().toUpperCase();
 
     // Verificar si el departamento ya existe
     const depExists = await prisma.departments.findUnique({
@@ -20,7 +20,7 @@ const createDepartment = async (req, res) => {
     // Crear el nuevo departamento
     const department = await prisma.departments.create({
         data: {
-            name: name,
+            name,
             description: description
         }
     });
@@ -43,16 +43,12 @@ const createDepartment = async (req, res) => {
 const listDepartments = async (req, res) => {
   try {
     const depts = await prisma.departments.findMany();
-    
-    // Registrar visualización de departamentos (implementar después)
-    try {
-      // Enviaremos un evento al servicio de auditoría más adelante
-      console.log(`Lista de departamentos consultada por ${req.user?.email || 'usuario no autenticado'}`);
-    } catch (logError) {
-      console.error("Error al registrar auditoría:", logError);
-    }
-    
-    return res.json(depts);
+    const normalized = depts.map(d => ({
+      ...d,
+      name: d.name ? d.name.toUpperCase() : d.name,
+    }));
+
+    return res.json(normalized) 
   } catch (error) {
     console.error("listDepartments error:", error);
     return res.status(500).json({ message: "Error en el servidor" });
